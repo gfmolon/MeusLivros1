@@ -1,0 +1,55 @@
+﻿@page "/calculadora"
+
+<PageTitle>Calculadora</PageTitle>
+
+<h1>Calculadora </h1>
+
+<div>
+    <input type="number" @bind="Numero1" placeholder="Primeiro Número" />
+    <select @bind="Operacao">
+        <option value="+">+</option>
+        <option value="-">-</option>
+        <option value="*">*</option>
+        <option value="/">/</option>
+    </select>
+    <input type="number" @bind="Numero2" placeholder="Segundo Número" />
+    <button @onclick="Calcular">Calcular</button>
+</div>
+
+@if (Resultado.HasValue)
+{
+    <p>Resultado: @Resultado</p>
+}
+
+@code {
+    private double Numero1 { get; set; }
+    private double Numero2 { get; set; }
+    private string Operacao { get; set; } = "+";
+    private double? Resultado { get; set; }
+
+    private void Calcular()
+    {
+        switch (Operacao)
+        {
+            case "+":
+                Resultado = Numero1 + Numero2;
+                break;
+            case "-":
+                Resultado = Numero1 - Numero2;
+                break;
+            case "*":
+                Resultado = Numero1 * Numero2;
+                break;
+            case "/":
+                if (Numero2 != 0)
+                {
+                    Resultado = Numero1 / Numero2;
+                }
+                else
+                {
+                    Resultado = null; // Erro: Divisão por zero
+                }
+                break;
+        }
+    }
+}

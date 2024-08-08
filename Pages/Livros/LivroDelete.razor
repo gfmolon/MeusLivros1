@@ -1,0 +1,32 @@
+@page "/livro/delete/{Id:int}"
+@using BibliotecaApp.Services
+@using BibliotecaApp.Models
+@inject ILivroService LivroService
+@inject NavigationManager Navigation
+
+<h3>Excluir Livro</h3>
+
+<p>Tem certeza de que deseja excluir o livro?</p>
+
+<button class="btn btn-danger" @onclick="DeleteLivro">Excluir</button>
+<a href="/livros" class="btn btn-secondary">Cancelar</a>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var livro = await LivroService.GetLivroByIdAsync(Id);
+        if (livro == null)
+        {
+            Navigation.NavigateTo("/livros");
+        }
+    }
+
+    private async Task DeleteLivro()
+    {
+        await LivroService.DeleteLivroAsync(Id);
+        Navigation.NavigateTo("/livros");
+    }
+}

@@ -1,0 +1,105 @@
+@page "/livros"
+@inject ILivroService LivroService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Livros</h3>
+
+<button class="btn btn-primary mb-3" @onclick="AdicionarLivro">Adicionar Novo Livro</button>
+<button class="btn btn-secondary mb-3" @onclick="AdicionarCategoria">Adicionar Nova Categoria</button>
+
+@if (livros == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else if (!livros.Any())
+{
+    <p>Nenhum livro encontrado.</p>
+}
+else
+{
+    <table class="table">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Data de Publicação</th>
+            <th>Gênero</th>
+            <th>Categoria</th> <!-- Nova coluna -->
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var livro in livros)
+            {
+                <tr>
+                    <td>@livro.Titulo</td>
+                    <td>@livro.Autor</td>
+                    <td>@livro.DataPublicacao.ToShortDateString()</td>
+                    <td>@livro.Genero</td>
+                    <td>@livro.Categoria?.Nome</td> <!-- Exibe o nome da categoria -->
+                    <td>
+                        <a href="/livro/edit/@livro.Id" class="btn btn-secondary btn-sm">Editar</a>
+                        <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(livro.Id)">Excluir</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Livro> livros;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLivros();
+    }
+
+    private async Task LoadLivros()
+    {
+        try
+        {
+            livros = await LivroService.GetAllLivrosAsync();
+        }
+        catch (Exception ex)
+        {
+            // Log ou exibe a exceção
+            Console.WriteLine($"Erro ao carregar livros: {ex.Message}");
+        }
+    }
+
+    private void AdicionarLivro()
+    {
+        Navigation.NavigateTo("/livro/new");
+    }
+
+    private void AdicionarCategoria()
+    {
+        // Navegar para a página de adicionar uma nova categoria
+        Navigation.NavigateTo("/categoria/new");
+    }
+
+    private async Task ConfirmDelete(int id)
+    {
+        var confirmResult = await JSRuntime.InvokeAsync<bool>("confirm", "Tem certeza de que deseja excluir este livro?");
+        if (confirmResult)
+        {
+            await DeleteLivro(id);
+        }
+    }
+
+    private async Task DeleteLivro(int id)
+    {
+        try
+        {
+            await LivroService.DeleteLivroAsync(id);
+            await LoadLivros(); // Recarrega a lista após a exclusão
+        }
+        catch (Exception ex)
+        {
+            // Log ou exibe a exceção
+            Console.WriteLine($"Erro ao excluir livro: {ex.Message}");
+        }
+    }
+}

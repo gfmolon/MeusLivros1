@@ -1,0 +1,36 @@
+@page "/categoria/new"
+@inject ICategoriaService CategoriaService
+@inject NavigationManager Navigation
+
+<h3>Criar Nova Categoria</h3>
+
+<EditForm Model="@NovaCategoria" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Nome:</label>
+        <InputText @bind-Value="NovaCategoria.Nome" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="/livros" class="btn btn-secondary">Cancelar</a>
+</EditForm>
+
+@code {
+    private Categoria NovaCategoria { get; set; } = new Categoria();
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            await CategoriaService.CreateCategoriaAsync(NovaCategoria);
+            Navigation.NavigateTo("/livros");
+        }
+        catch (Exception ex)
+        {
+            // Log ou exiba a exceção
+            Console.WriteLine($"Erro ao criar categoria: {ex.Message}");
+        }
+    }
+}
